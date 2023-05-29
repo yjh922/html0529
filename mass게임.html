@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        let wrapper;//사각형 셀들이 붙여질 곳
+        let size=10;//사각형 하나당 크기
+        let cols=60;//호수 즉 열의 개수
+        let rows=50;//층수 즉 행의 개수
+        let cellArray=new Array(rows);
+        let a=0.1;
+
+        //2차원 배열내의 셀들을 접근하기 위한 index 들
+        let rowCount=0;// 층수를 접근
+        let colCount=0;// 호수를 접근
+        
+        //셀을 정의한다
+        class Cell{
+            constructor(x, y, targetO){
+                this.div;
+                this.x=x;
+                this.y=y;
+                this.targetO=targetO;
+                let op=this;
+
+                this.div=document.createElement("div");
+                this.div.style.width=size+"px";
+                this.div.style.height=size+"px";
+                this.div.style.background="red";
+                this.div.style.position="absolute";
+                this.div.style.left=this.x+"px";
+                this.div.style.top=this.y+"px";
+                this.div.style.border="1px solid black"
+                this.div.style.boxSizing="border-box";
+                this.div.style.opacity=1;
+
+                wrapper.appendChild(this.div);
+
+                //생성된 div에 마우스 이벤트 연결
+                //주의) cell 이라는 클래스는 변수와 함수를 포함한 단위일뿐
+                //자체가 UI가 아니므로 이벤트를 연결하거나 볼 수 없다.
+                this.div.addEventListener("mouseover", function(){
+                    //나(div) 자신의 opacity 값을 0으로 넣기
+                    //여기서의 this는 이벤트 익명함수 영역이고, 이 이벤트를 일으킨 
+                    //주체인 div를 의미한다.
+                    op.targetO=0;
+                });
+            }
+            //부드럽게 사라지게(감속도 공식을 opacity에 적용)
+            move(){
+                this.div.style.opacity=parseFloat(this.div.style.opacity)+a*(this.targetO-parseFloat(this.div.style.opacity));
+            }
+        }
+
+        function createWrapper(){
+            wrapper=document.createElement("div");
+            wrapper.style.width=size*cols+"px";
+            wrapper.style.height=size*rows+"px";
+            wrapper.style.margin="auto";
+            wrapper.style.position="relative";//자식때문에
+            wrapper.style.background="gray";
+            //이미지 배경적용
+            wrapper.style.backgroundImage="url(../images/shurek/img1.jpg)";
+            wrapper.style.backgroundSize=(size*cols)+"px "+(size*rows)+"px";
+
+            document.body.appendChild(wrapper);
+        }
+
+        //전역변수에 선언한 셀의 수만큼 반복문 돌리면서
+        //셀을 생성해보자(new)
+        function createCell(){
+            for(let a=0; a<rows; a++){
+                
+                //셀들을 담기 위한 일차원배열
+                let arr=new Array(cols);
+
+                for(let i=0; i<cols; i++){//호수만큼
+                    let cell=new Cell(i*size,a*size,1);
+                    arr[i]=cell;//일차원 배열에 셀들을 채워넣기
+                }
+                cellArray[a]=arr;//이차원 배열에 일차원 배열 넣기
+            }
+        }
+
+        function init(){
+            createWrapper();
+            createCell();
+        }
+        function loop(){
+            //화면에 등장한 모든 셀을 대상으로 move()를 호출
+            for(let a=0; a<cellArray.length; a++){
+                for(let i=0; i<cellArray[a].length; i++){
+                    cellArray[a][i].move();
+                }
+            }
+        };
+        function loop2(){
+            cellArray[rowCount][colCount].targetO=0;
+            colCount++;
+            if(colCount%cols==0){
+                colCount=0;
+                rowCount++;
+            }
+            if(rowCount%rows==0){
+                rowCount=0;
+            }
+
+        }
+        addEventListener("load", function(){
+            init();
+            setInterval("loop()", 20);
+
+            setInterval("loop2()", 5);
+        });
+    </script>
+</head>
+<body>
+    
+</body>
+</html>
